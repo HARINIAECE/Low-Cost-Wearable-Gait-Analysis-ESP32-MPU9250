@@ -1,0 +1,95 @@
+#include <esp_now.h>
+#include <WiFi.h>
+#include <Wire.h>
+#include <MPU9250_asukiaaa.h>
+
+#define BOARD_ID 2
+
+uint8_t receiverAddress[] = {0x70, 0x4B, 0xCA, 0x82, 0x78, 0x9C};
+
+MPU9250_asukiaaa mySensor;
+
+typedef struct struct_message {
+  int id;
+  float accX;
+  float accY;
+  float accZ;
+  float gyroX;
+  float gyroY;
+  float gyroZ;
+} struct_message;
+
+struct_message myData;
+esp_now_peer_info_t peerInfo;
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.mode(WIFI_STA);
+
+  Wire.begin(21, 22);
+
+  mySensor.setWire(&Wire);
+  mySensor.beginAccel();
+  mySensor.beginGyro();
+
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("ESP NOW INIT FAILED");
+    return;
+  }
+
+  memcpy(peerInfo.peer_addr, receiverAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+    Serial.println("FAILED TO ADD PEER");
+    return;
+  }
+
+  Serial.println("TX2 READY");
+}
+
+void loop() {
+  mySensor.accelUpdate();
+  mySensor.gyroUpdate();
+
+  myData.id = BOARD_ID;
+
+  myData.accX = mySensor.accelX();
+  myData.accY = mySensor.accelY();
+  myData.accZ = mySensor.accelZ();
+
+  myData.gyroX = mySensor.gyroX();
+  myData.gyroY = mySensor.gyroY();
+  myData.gyroZ = mySensor.gyroZ();
+
+  esp_err_t result = esp_now_send(
+    receiverAddress,
+    (uint8_t *)&myData,
+    sizeof(myData)
+  );
+
+  if (result == ESP_OK) {
+    Serial.print("ID: ");
+    Serial.print(myData.id);
+
+    Serial.print(" | Acc: ");
+    Serial.print(myData.accX, 2);
+    Serial.print(", ");
+    Serial.print(myData.accY, 2);
+    Serial.print(", ");
+    Serial.print(myData.accZ, 2);
+
+    Serial.print(" | Gyro: ");
+    Serial.print(myData.gyroX, 2);
+    Serial.print(", ");
+    Serial.print(myData.gyroY, 2);
+    Serial.print(", ");
+    Serial.println(myData.gyroZ, 2);
+  } else {
+    Serial.println("SEND FAILED");
+  }
+
+  delay(10);
+}
