@@ -39,11 +39,10 @@ Applications
 - Sports Biomechanics
 - Wearable Healthcare
 
-Project Status
-Hardware prototype developed with wireless data acquisition and initial gait parameter analysis demonstrated.
+Prototype Images
+<img width="722" height="1600" alt="image" src="https://github.com/user-attachments/assets/e349423a-bdbd-4b57-8ff4-118d17313705" />
+<img width="659" height="1277" alt="WhatsApp Image 2026-11-25 at 8 52 24 AM" src="https://github.com/user-attachments/assets/aba153ac-ff01-4e2e-8b01-8ef149e2f1d4" />
 
-Developed By
-Harini A  
-Electronics and Communication Engineering  
-Chennai Institute of Technology
+
+
 
